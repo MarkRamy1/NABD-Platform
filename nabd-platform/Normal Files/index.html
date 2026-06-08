@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NABD — Hospital Ratings</title>
+    <link rel="icon" type="image/png" href="Favicon_Nabd.jpeg" />
+    <link rel="stylesheet" href="bootstrap.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body dir="ltr" id="body-root">
+    <!-- Header -->
+    <header class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+        <div class="container-lg">
+            <a class="navbar-brand fw-bold" href="#home" style="display:flex;align-items:center;gap:8px;">
+                <img src="Favicon_Nabd.jpeg" alt="NABD Logo" style="height:40px;width:auto;" />
+                <strong>NABD</strong>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home" data-i18n="nav.home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#ratings" data-i18n="nav.ratings">Ratings</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contact" data-i18n="nav.contact">Contact Us</a></li>
+                </ul>
+                <div class="ms-3 d-flex gap-2 align-items-center">
+                    <select id="lang-select" class="form-select form-select-sm" onchange="switchLanguage(this.value)">
+                        <option value="en" data-i18n="common.lang_en">EN</option>
+                        <option value="ar" data-i18n="common.lang_ar">AR</option>
+                    </select>
+                    <div id="user-menu" class="dropdown" style="display:none;">
+                        <a href="#" id="user-btn" class="btn btn-sm btn-outline-primary dropdown-toggle" role="button" data-bs-toggle="dropdown"></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" onclick="openProfileModal()" data-i18n="nav.profile">My Profile</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showMyAppointments()" data-i18n="appointment.my_appointments">My Appointments</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="handleLogout()" data-i18n="nav.logout">Logout</a></li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary" id="login-btn" data-i18n="nav.login" onclick="openModal('login-modal')">Login</button>
+                    <button class="btn btn-sm btn-primary" id="register-btn" data-i18n="nav.register" onclick="openModal('register-modal')">Register</button>
+                    <button class="btn btn-sm btn-outline-danger" id="logout-btn" data-i18n="nav.logout" onclick="handleLogout()" style="display:none;">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="page hero">
+            <div class="container-lg text-center text-white">
+                <h1 data-i18n="hero.title">Choose the Best Hospital with Confidence</h1>
+                <p data-i18n="hero.subtitle">NABD platform helps you evaluate and compare hospitals easily with reliable information</p>
+                <button class="btn btn-lg btn-light" onclick="location.hash='ratings'" data-i18n="hero.cta">Start Now</button>
+            </div>
+            <!-- Feature Highlights -->
+            <div class="container-lg text-center text-dark mt-5">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="p-4">
+                            <div class="mb-3"><img src="icons/search.svg" alt="" width="48"></div>
+                            <h4 data-i18n="hero.features.easy_title">Easy Search</h4>
+                            <p data-i18n="hero.features.easy_desc">Search hospitals by specialty and location</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-4">
+                            <div class="mb-3"><img src="icons/ratings.svg" alt="" width="48"></div>
+                            <h4 data-i18n="hero.features.trusted_title">Trusted Ratings</h4>
+                            <p data-i18n="hero.features.trusted_desc">Reviews from real patients with proof of visit</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-4">
+                            <div class="mb-3"><img src="icons/compare.svg" alt="" width="48"></div>
+                            <h4 data-i18n="hero.features.compare_title">Compare Confidently</h4>
+                            <p data-i18n="hero.features.compare_desc">Compare hospitals and choose the best for you</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ratings Page -->
+        <section id="ratings" class="page" style="display:none;">
+            <div class="container-lg py-5">
+                <h2 data-i18n="nav.ratings">Hospital Ratings</h2>
+                
+                <!-- Controls -->
+                <div class="controls mb-4">
+                    <div class="search-box mb-3">
+                        <input type="text" id="search" class="form-control form-control-lg" placeholder="Search hospitals..." data-i18n-placeholder="hospital.search_placeholder">
+                        <button class="btn btn-primary btn-lg" onclick="applyFilters()" data-i18n="common.search">Search</button>
+                    </div>
+                    
+                    <div class="filter-box d-flex gap-2">
+                        <select id="region-filter" class="form-select form-select-lg" onchange="applyFilters()">
+                            <option value="" data-i18n="hospital.filter_by_city">Filter by Region</option>
+                        </select>
+                        <select id="specialization-filter" class="form-select form-select-lg" onchange="applyFilters()">
+                            <option value="" data-i18n="hospital.filter_by_specialization">Filter by Specialization</option>
+                        </select>
+                        <select id="sort-by" class="form-select form-select-lg" onchange="applyFilters()">
+                            <option value="name" data-i18n="hospital.sort_by_name">Sort by Name</option>
+                            <option value="rating" data-i18n="hospital.sort_by_rating">Sort by Rating</option>
+                            <option value="beds" data-i18n="hospital.sort_by_beds">Sort by Beds</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Hospital Grid -->
+                <div id="hospital-grid" class="grid"></div>
+                
+                <!-- Pagination -->
+                <div class="pagination mt-4">
+                    <button class="btn btn-outline-primary" onclick="prevPage()" data-i18n="prev">Prev</button>
+                    <span id="page-info">Page 1</span>
+                    <button class="btn btn-outline-primary" onclick="nextPage()" data-i18n="next">Next</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Page -->
+        <section id="contact" class="page" style="display:none;">
+            <div class="container-lg py-5">
+                <h2 data-i18n="contact.title">Contact Us</h2>
+                <form class="row g-3" onsubmit="sendContact(event)" style="max-width:600px;">
+                    <div class="col-12">
+                        <input type="text" class="form-control" placeholder="Your Name" data-i18n-placeholder="contact.name" required>
+                    </div>
+                    <div class="col-12">
+                        <input type="email" class="form-control" placeholder="Your Email" data-i18n-placeholder="contact.email" required>
+                    </div>
+                    <div class="col-12">
+                        <input type="text" class="form-control" placeholder="Subject" data-i18n-placeholder="contact.subject" required>
+                    </div>
+                    <div class="col-12">
+                        <textarea class="form-control" rows="5" placeholder="Your Message" data-i18n-placeholder="contact.message" required></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary" data-i18n="contact.send">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Detail Modal -->
+    <div class="modal" id="detail-modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('detail-modal')">&times;</span>
+            <h3 id="modal-name">Hospital Name</h3>
+            <div id="modal-body" class="mt-3">
+                <p><strong data-i18n="contact.phone_label">Phone:</strong> <span id="modal-phone">N/A</span></p>
+                <p><strong data-i18n="hospital.location">Location:</strong> <span id="modal-location">N/A</span></p>
+                <p><strong data-i18n="hospital.region">Region:</strong> <span id="modal-region">N/A</span></p>
+                <p><strong data-i18n="hospital.specialization">Specialization:</strong> <span id="modal-specialization">N/A</span></p>
+                <p><strong data-i18n="hospital.beds">Beds:</strong> <span id="modal-beds">N/A</span></p>
+                <p><strong data-i18n="hospital.staff">Staff:</strong> <span id="modal-staff">N/A</span></p>
+                <p><strong data-i18n="hospital.hours">Hours:</strong> <span id="modal-hours">N/A</span></p>
+            </div>
+            <div class="mt-4 pt-3 border-top">
+                <h4 class="h6 mb-2" data-i18n="hospital.reviews">Reviews</h4>
+                <div id="modal-reviews-list" class="small text-muted"></div>
+            </div>
+            <button class="btn btn-primary mt-3" id="modal-favorite" onclick="toggleFavoriteFromModal()" data-i18n="hospital.add_to_favorites">Add to Favorites</button>
+            <button class="btn btn-outline-primary mt-2" onclick="openReviewModal()" data-i18n="review.write_review">Write Review</button>
+            <button class="btn btn-success mt-2" onclick="openAppointmentModal()" data-i18n="appointment.book_appointment">Book Appointment</button>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal" id="review-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="modal-close" onclick="closeModal('review-review')">&times;</span>
+            <h3 data-i18n="review.write_review">Write Review</h3>
+            <form onsubmit="handleReviewSubmit(event)" class="mt-3">
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="review.your_rating">Your Rating</label>
+                    <input type="number" min="1" max="5" class="form-control" id="review-rating" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="review.your_comment_ar">Your Comment (العربية)</label>
+                    <textarea class="form-control" id="review-comment-ar" placeholder="" data-i18n-placeholder="review.your_comment_ar" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="review.your_comment_en">Your Comment (English)</label>
+                    <textarea class="form-control" id="review-comment-en" placeholder="" data-i18n-placeholder="review.your_comment_en" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="review.visit_date">Visit Date</label>
+                    <input type="date" class="form-control" id="review-date" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="review.upload_proof">Upload Proof Document</label>
+                    <input type="file" class="form-control" id="review-proof">
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary" onclick="closeModal('review-modal')" data-i18n="review.cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" data-i18n="review.submit">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profile-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <span class="modal-close" onclick="closeModal('profile-modal')">&times;</span>
+            <h3 data-i18n="profile.title">My Profile</h3>
+            <form onsubmit="handleProfileSave(event)" class="mt-3">
+                <input type="text" class="form-control mb-2" id="profile-name" placeholder="" data-i18n-placeholder="profile.name" required>
+                <input type="email" class="form-control mb-2" id="profile-email" placeholder="" data-i18n-placeholder="profile.email" readonly>
+                <input type="tel" class="form-control mb-3" id="profile-phone" placeholder="" data-i18n-placeholder="profile.phone">
+                <button type="submit" class="btn btn-primary w-100" data-i18n="profile.save">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Auth Modal (Login) - WITH NAME FIELD -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <span class="modal-close" onclick="closeModal('login-modal')">&times;</span>
+            <h3 data-i18n="auth.login_title">Login to Your Account</h3>
+            <form onsubmit="handleLogin(event)" class="mt-3">
+                <input type="text" class="form-control mb-2" id="login-name" placeholder="What is your name?" data-i18n-placeholder="auth.name_placeholder" required>
+                <input type="email" class="form-control mb-2" placeholder="Email" data-i18n-placeholder="auth.email" required>
+                <input type="password" class="form-control mb-3" placeholder="Password" data-i18n-placeholder="auth.password" required>
+                <button type="submit" class="btn btn-primary w-100" data-i18n="auth.login_button">Login</button>
+                <p class="mt-3 text-center"><small><span data-i18n="auth.no_account">Don't have an account?</span> <a href="#" onclick="switchModal('login-modal', 'register-modal'); return false;">Register</a></small></p>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Auth Modal (Register) -->
+    <div class="modal" id="register-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <span class="modal-close" onclick="closeModal('register-modal')">&times;</span>
+            <h3 data-i18n="auth.register_title">Create New Account</h3>
+            <p class="small text-muted mt-2">Gmail accounts only</p>
+            <form onsubmit="handleRegister(event)" class="mt-3">
+                <input type="text" class="form-control mb-2" placeholder="Full Name" data-i18n-placeholder="auth.name_english" required>
+                <input type="email" class="form-control mb-2" placeholder="Gmail Address" data-i18n-placeholder="auth.email" required>
+                <input type="tel" class="form-control mb-2" placeholder="Phone" data-i18n-placeholder="auth.phone">
+                <input type="password" class="form-control mb-2" placeholder="Password" data-i18n-placeholder="auth.password" required>
+                <input type="password" class="form-control mb-3" placeholder="Confirm Password" data-i18n-placeholder="auth.confirm_password" required>
+                <button type="submit" class="btn btn-primary w-100" data-i18n="auth.register_button">Register</button>
+                <p class="mt-3 text-center"><small><span data-i18n="auth.have_account">Already have an account?</span> <a href="#" onclick="switchModal('register-modal', 'login-modal'); return false;">Login</a></small></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Appointment Booking Modal -->
+    <div class="modal" id="appointment-modal">
+        <div class="modal-content" style="max-width: 550px;">
+            <span class="modal-close" onclick="closeModal('appointment-modal')">&times;</span>
+            <h3 data-i18n="appointment.book_appointment">Book Appointment</h3>
+            
+            <!-- Google Sign-In for users not logged in -->
+            <div id="google-signin-section" class="mt-3 p-3 border rounded" style="display: none;">
+                <p class="text-muted small" data-i18n="appointment.google_signin">Please sign in with your Gmail account to book appointments</p>
+                <div id="google-signin-container"></div>
+            </div>
+
+            <!-- Appointment form -->
+            <form id="appointment-form" onsubmit="handleAppointmentSubmit(event)" class="mt-3" style="display: none;">
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="appointment.hospital">Hospital</label>
+                    <input type="text" class="form-control" id="appointment-hospital" readonly>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="appointment.date">Preferred Date</label>
+                    <input type="date" class="form-control" id="appointment-date" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="appointment.time">Preferred Time</label>
+                    <input type="time" class="form-control" id="appointment-time" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="appointment.specialization">Specialization</label>
+                    <input type="text" class="form-control" id="appointment-specialization" readonly>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="appointment.doctor_name">Preferred Doctor (Optional)</label>
+                    <input type="text" class="form-control" id="appointment-doctor" data-i18n-placeholder="appointment.doctor_placeholder">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" data-i18n="appointment.notes">Notes/Reason for Visit</label>
+                    <textarea class="form-control" id="appointment-notes" rows="3" data-i18n-placeholder="appointment.notes_placeholder"></textarea>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="appointment-save-calendar" checked>
+                    <label class="form-check-label" for="appointment-save-calendar" data-i18n="appointment.save_to_calendar">
+                        Save to Google Calendar
+                    </label>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary" onclick="closeModal('appointment-modal')" data-i18n="appointment.cancel">Cancel</button>
+                    <button type="submit" class="btn btn-success" data-i18n="appointment.confirm">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- My Appointments Modal -->
+    <div class="modal" id="my-appointments-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="modal-close" onclick="closeModal('my-appointments-modal')">&times;</span>
+            <h3 data-i18n="appointment.my_appointments">My Appointments</h3>
+            <div id="appointments-list" class="mt-3">
+                <p class="text-muted text-center" data-i18n="appointment.no_appointments">No appointments booked yet</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="hospital-names.js"></script>
+    <script src="i18n.js"></script>
+    <script src="google-calendar-integration.js"></script>
+    <script src="mockReviews.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
