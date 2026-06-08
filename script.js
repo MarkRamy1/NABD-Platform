@@ -1,6 +1,6 @@
 // Main app script with i18n support
 const API_BASE = 'http://localhost:3001';
-const CSV_PATH = 'nabd-platform/Nabd data/Hospitals_Greater_Cairo_Region.csv';
+const CSV_PATH = 'Nabd data/Hospitals_Greater_Cairo_Region.csv';
 
 // ========== Global State ==========
 let hospitals = [];
