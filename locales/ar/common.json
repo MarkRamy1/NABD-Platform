@@ -1,0 +1,122 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "ratings": "التقييمات",
+    "contact": "تواصل معنا",
+    "profile": "ملفي الشخصي",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج"
+  },
+  "common": {
+    "lang_en": "English",
+    "lang_ar": "العربية",
+    "search": "بحث",
+    "loading": "جاري التحميل...",
+    "success": "تم بنجاح!",
+    "error": "خطأ",
+    "page": "الصفحة",
+    "of": "من",
+    "next": "التالي",
+    "prev": "السابق"
+  },
+  "hero": {
+    "title": "اختر أفضل مستشفى بثقة",
+    "subtitle": "منصة نبض تساعدك على تقييم ومقارنة المستشفيات بسهولة مع معلومات موثوقة",
+    "cta": "ابدأ الآن",
+    "features": {
+      "easy_title": "بحث سهل",
+      "easy_desc": "ابحث عن المستشفيات حسب التخصص والموقع",
+      "trusted_title": "تقييمات موثوقة",
+      "trusted_desc": "تقييمات من مرضى حقيقيين مع إثبات الزيارة",
+      "compare_title": "قارن بثقة",
+      "compare_desc": "قارن المستشفيات واختر الأفضل لك"
+    }
+  },
+  "hospital": {
+    "search_placeholder": "ابحث عن مستشفى...",
+    "filter_by_city": "تصفية حسب المحافظة",
+    "filter_by_specialization": "تصفية حسب التخصص",
+    "sort_by_name": "الترتيب حسب الاسم",
+    "sort_by_rating": "الترتيب حسب التقييم",
+    "sort_by_beds": "الترتيب حسب الأسرة",
+    "view_details": "عرض التفاصيل",
+    "add_to_favorites": "إضافة إلى المفضلة",
+    "remove_from_favorites": "إزالة من المفضلة",
+    "location": "الموقع",
+    "region": "المحافظة",
+    "specialization": "التخصص",
+    "beds": "الأسرة",
+    "staff": "الموظفون",
+    "hours": "ساعات العمل",
+    "reviews": "تقييمات",
+    "cardiology": "أمراض القلب",
+    "neurology": "الأعصاب",
+    "orthopedics": "العظام",
+    "pediatrics": "طب الأطفال",
+    "oncology": "الأورام",
+    "dermatology": "الجلدية",
+    "gynecology": "أمراض النساء",
+    "ophthalmology": "العيون",
+    "ent": "الأنف والأذن والحنجرة",
+    "urology": "المسالك البولية",
+    "gastroenterology": "الجهاز الهضمي",
+    "psychiatry": "الطب النفسي",
+    "loading": "جاري تحميل المستشفيات..."
+  },
+  "review": {
+    "write_review": "كتابة تقييم",
+    "your_rating": "تقييمك",
+    "your_comment_en": "تعليقك (English)",
+    "your_comment_ar": "تعليقك (العربية)",
+    "visit_date": "تاريخ الزيارة",
+    "upload_proof": "تحميل وثيقة إثبات",
+    "submit": "إرسال",
+    "cancel": "إلغاء",
+    "no_reviews": "لا توجد تقييمات حتى الآن. كن أول من يقيم!"
+  },
+  "appointment": {
+    "book_appointment": "حجز موعد",
+    "hospital": "المستشفى",
+    "date": "التاريخ المفضل",
+    "time": "الوقت المفضل",
+    "specialization": "التخصص",
+    "doctor_name": "الطبيب المفضل (اختياري)",
+    "doctor_placeholder": "أدخل اسم الطبيب",
+    "notes": "ملاحظات/سبب الزيارة",
+    "notes_placeholder": "أخبرنا لماذا تحتاج هذا الموعد",
+    "save_to_calendar": "حفظ في تقويم Google",
+    "google_signin": "يرجى تسجيل الدخول باستخدام حسابك على Gmail لحجز المواعيد",
+    "my_appointments": "مواعيدي",
+    "book": "حجز"
+  },
+  "contact": {
+    "title": "تواصل معنا",
+    "name": "اسمك",
+    "email": "بريدك الإلكتروني",
+    "subject": "الموضوع",
+    "message": "رسالتك",
+    "send": "إرسال الرسالة",
+    "phone_label": "الهاتف"
+  },
+  "auth": {
+    "login_title": "تسجيل الدخول إلى حسابك",
+    "register_title": "إنشاء حساب جديد",
+    "name_placeholder": "ما اسمك؟",
+    "name_english": "الاسم الكامل",
+    "email": "عنوان البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirm_password": "تأكيد كلمة المرور",
+    "login_button": "تسجيل الدخول",
+    "register_button": "إنشاء حساب",
+    "no_account": "ليس لديك حساب؟",
+    "have_account": "هل لديك حساب بالفعل؟"
+  },
+  "profile": {
+    "title": "ملفي الشخصي",
+    "name": "الاسم الكامل",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "save": "حفظ التغييرات"
+  }
+}
