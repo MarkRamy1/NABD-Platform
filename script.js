@@ -32,6 +32,13 @@ const SPECIALIZATION_KEYS = {
     'Psychiatry': 'hospital.psychiatry'
 };
 
+// Arabic names for regions (as they appear in the CSV)
+const REGION_NAMES_AR = {
+    'Cairo': 'القاهرة',
+    'Giza': 'الجيزة',
+    'El Qalyubia': 'القليوبية'
+};
+
 // Get translated specialization name
 function getSpecializationName(spec) {
     if (!spec) return 'N/A';
@@ -691,7 +698,10 @@ function populateFilters() {
     const regionFilter = document.getElementById('region-filter');
     if (regionFilter) {
         regionFilter.innerHTML = `<option value="">${t('hospital.filter_by_city')}</option>` + 
-            regions.map(r => `<option value="${r}">${r}</option>`).join('');
+            regions.map(r => {
+                const label = currentLanguage === 'ar' ? (REGION_NAMES_AR[r] || r) : r;
+                return `<option value="${r}">${label}</option>`;
+            }).join('');
     }
 
     // Populate specialization filter
