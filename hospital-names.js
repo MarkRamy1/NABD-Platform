@@ -290,7 +290,6 @@ const HOSPITAL_NAMES_AR = {
   "Rowad Eye Hospital": "مستشفى العيون الرواد",
   "Roxy Hospital": "مستشفى روكسي",
   "Saad Soliman Hospital": "مستشفى سعد سليمان",
-  "Saudi German Hospital SGH Cairo (150 Beds General Hospital)": "المستشفى السعودي الألماني القاهرة (150 سرير - مستشفى عام)",
   "Saudi German Hospital SGH Cairo": "المستشفى السعودي الألماني",
   "Sharm International Hospital": "مستشفى شرم الدولية",
   "Sheikh Zayed Hospital": "مستشفى الشيخ زايد",
