@@ -207,7 +207,12 @@ function applyFilters() {
     filtered = hospitals.filter(h => {
         if (region && h.region !== region) return false;
         if (specialization && h.specialization !== specialization) return false;
-        if (q && !h.name.toLowerCase().includes(q) && !h.description.toLowerCase().includes(q)) return false;
+        if (q) {
+            const nameEn = h.name.toLowerCase();
+            const nameAr = getHospitalNameInLanguage(h.name, 'ar').toLowerCase();
+            const desc = (h.description || '').toLowerCase();
+            if (!nameEn.includes(q) && !nameAr.includes(q) && !desc.includes(q)) return false;
+        }
         return true;
     });
     
