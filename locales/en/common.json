@@ -88,7 +88,16 @@
     "save_to_calendar": "Save to Google Calendar",
     "google_signin": "Please sign in with your Gmail account to book appointments",
     "my_appointments": "My Appointments",
-    "book": "Book"
+    "book": "Book",
+    "confirm": "Confirm Booking",
+    "cancel": "Cancel",
+    "no_appointments": "No appointments booked yet",
+    "login_required": "Please log in to book an appointment.",
+    "not_logged_in": "You must be logged in to book an appointment.",
+    "booking_success": "Appointment booked successfully!",
+    "booking_with_calendar": "Appointment booked and added to your Google Calendar!",
+    "booking_calendar_failed": "Appointment saved locally, but Google Calendar sync failed.",
+    "error_booking": "Could not book appointment. Please try again."
   },
   "contact": {
     "title": "Contact Us",
@@ -97,7 +106,8 @@
     "subject": "Subject",
     "message": "Your Message",
     "send": "Send Message",
-    "phone_label": "Phone"
+    "phone_label": "Phone",
+    "success": "Message sent successfully!"
   },
   "auth": {
     "login_title": "Login to Your Account",
@@ -105,6 +115,7 @@
     "name_placeholder": "What is your name?",
     "name_english": "Full Name",
     "email": "Email Address",
+    "phone": "Phone Number",
     "password": "Password",
     "confirm_password": "Confirm Password",
     "login_button": "Login",

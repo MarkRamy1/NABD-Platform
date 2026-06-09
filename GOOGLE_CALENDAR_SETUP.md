@@ -45,47 +45,53 @@ This guide explains how to set up Google Calendar API integration for the appoin
 
 4. Go back to **Credentials** and click **+ CREATE CREDENTIALS** > **OAuth client ID**
 5. Select **Web application**
-6. Under "Authorized JavaScript origins," add:
+6. Under **Authorized JavaScript origins**, add every URL where the app runs:
    ```
-   http://localhost:3000
    http://localhost:8000
-   http://127.0.0.1:3000
    http://127.0.0.1:8000
-   https://yourdomain.com (your production domain)
+   https://markramy1.github.io
    ```
 
-7. Under "Authorized redirect URIs," add:
-   ```
-   http://localhost:3000/callback
-   http://localhost:8000/callback
-   http://127.0.0.1:3000/callback
-   http://127.0.0.1:8000/callback
-   https://yourdomain.com/callback (your production domain)
-   ```
+7. Click **CREATE** and copy your **Client ID**.
 
-8. Click "CREATE"
-9. Copy your **Client ID** - you'll need this
+8. Create an **API Key** (Credentials → Create credentials → API key). Restrict it to:
+   - **HTTP referrers:** `https://markramy1.github.io/*`, `http://localhost:8000/*`
+   - **APIs:** Google Calendar API
+
+> **Note:** This app uses the Google Identity Services **token client** (OAuth 2.0 access tokens). Redirect URIs are not required for the implicit token flow used here.
 
 ## Step 4: Update Configuration
 
-1. Open `google-calendar-integration.js` in your editor
-2. Replace these lines at the top:
-   ```javascript
-   const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
-   const GOOGLE_API_KEY = 'YOUR_GOOGLE_API_KEY';
-   ```
+Credentials are **not** stored in `google-calendar-integration.js`. Use a local config file:
 
-3. With your actual credentials from the Google Cloud Console:
-   - Replace `YOUR_GOOGLE_CLIENT_ID` with your OAuth 2.0 Client ID
-   - For API Key: Go to **Credentials**, click **+ CREATE CREDENTIALS** > **API Key**, copy the key
+1. Copy the template:
+   ```bash
+   cp google-calendar-config.example.js google-calendar-config.js
+   ```
+2. Edit `google-calendar-config.js` (this file is **gitignored**):
+   ```javascript
+   window.NABD_GOOGLE_CONFIG = {
+       clientId: 'YOUR_CLIENT_ID.apps.googleusercontent.com',
+       apiKey: 'YOUR_API_KEY'
+   };
+   ```
+3. Ensure `index.html` loads the config before the integration script (already wired).
+
+### GitHub Pages (`https://markramy1.github.io/NABD-Platform/`)
+
+Because `google-calendar-config.js` is gitignored, production Calendar sync requires one of:
+
+- **Recommended:** Rotate any previously committed keys, then deploy `google-calendar-config.js` via a CI step that writes the file from GitHub repository secrets, or
+- **Local-only demo:** Copy the config file on the machine used to test; appointments still save to `localStorage` without Calendar.
+
+Add `https://markramy1.github.io` as an authorized JavaScript origin in Google Cloud Console.
 
 ## Step 5: Configure User Consent
 
-When users first try to book an appointment and save to Google Calendar:
-1. They will see a Google sign-in button
-2. They must sign in with their Gmail account
-3. They'll be asked to grant permission to access their Google Calendar
-4. Once authorized, their appointments will be saved to their calendar automatically
+When a patient books with **Save to Google Calendar** checked:
+1. The app requests an OAuth **access token** with the Calendar scope (not a sign-in ID token)
+2. Google prompts the user to grant Calendar permission (first time uses `consent`)
+3. The appointment is created via the Calendar API using that access token
 
 ## Usage Flow
 

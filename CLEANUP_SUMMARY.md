@@ -53,10 +53,7 @@
 ### ✅ **FULLY CONFIGURED & READY TO USE**
 
 #### OAuth 2.0 Credentials:
-```
-Client ID: 560277826555-kccliqerreockqn0rgaq1f4h62u10j4b.apps.googleusercontent.com
-API Key: AIzaSyC14i6apvAuxjbkyV_cE5q8Yo3ydWo5nRo
-```
+Stored in `google-calendar-config.js` (gitignored). Use `google-calendar-config.example.js` as a template.
 
 #### Features Implemented:
 1. ✅ **Gmail Authentication** - Users sign in with @gmail.com accounts
@@ -74,9 +71,9 @@ API Key: AIzaSyC14i6apvAuxjbkyV_cE5q8Yo3ydWo5nRo
 6. Event synced to user's Google Calendar
 
 #### Configuration Files:
-- **google-calendar-integration.js** - OAuth client initialization and calendar API calls
+- **google-calendar-integration.js** - OAuth access-token flow and Calendar API calls
+- **google-calendar-config.example.js** - Credential template (copy to `google-calendar-config.js`)
 - **GOOGLE_CALENDAR_SETUP.md** - Step-by-step setup and deployment guide
-- **OAuth.txt** - OAuth credentials stored for reference
 
 ---
 

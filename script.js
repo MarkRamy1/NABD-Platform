@@ -777,23 +777,27 @@ async function handleAppointmentSubmit(e) {
         console.log('Appointment saved locally:', savedAppointment);
 
         // Save to Google Calendar if user wants
-        if (saveToCalendar && isGoogleAuthenticated()) {
-            try {
-                const eventDetails = {
-                    title: `Hospital Appointment - ${hospital.name}`,
-                    description: `Specialization: ${getSpecializationName(hospital.specialization)}\nDoctor: ${appointmentData.doctorName}\nNotes: ${notes}`,
-                    location: hospital.location,
-                    startDateTime: startDateTime.toISOString(),
-                    endDateTime: endDateTime.toISOString(),
-                    userEmail: user.email
-                };
+        if (saveToCalendar) {
+            if (!isGoogleCalendarConfigured()) {
+                alert(t('appointment.booking_success'));
+            } else {
+                try {
+                    const eventDetails = {
+                        title: `Hospital Appointment - ${hospital.name}`,
+                        description: `Specialization: ${getSpecializationName(hospital.specialization)}\nDoctor: ${appointmentData.doctorName}\nNotes: ${notes}`,
+                        location: hospital.location,
+                        startDateTime: startDateTime.toISOString(),
+                        endDateTime: endDateTime.toISOString(),
+                        userEmail: user.email
+                    };
 
-                await createGoogleCalendarEvent(eventDetails);
-                console.log('Event added to Google Calendar');
-                alert(t('appointment.booking_with_calendar'));
-            } catch (error) {
-                console.error('Error saving to Google Calendar:', error);
-                alert(t('appointment.booking_calendar_failed'));
+                    await createGoogleCalendarEvent(eventDetails);
+                    console.log('Event added to Google Calendar');
+                    alert(t('appointment.booking_with_calendar'));
+                } catch (error) {
+                    console.error('Error saving to Google Calendar:', error);
+                    alert(t('appointment.booking_calendar_failed'));
+                }
             }
         } else {
             alert(t('appointment.booking_success'));

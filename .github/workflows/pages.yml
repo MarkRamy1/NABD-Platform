@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate Google Calendar config
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+        run: |
+          node -e "
+          const fs = require('fs');
+          const cfg = {
+            clientId: process.env.GOOGLE_CLIENT_ID || '',
+            apiKey: process.env.GOOGLE_API_KEY || ''
+          };
+          fs.writeFileSync('google-calendar-config.js',
+            'window.NABD_GOOGLE_CONFIG = ' + JSON.stringify(cfg, null, 4) + ';\n');
+          "
+
+      - name: Bundle static site
+        run: |
+          mkdir -p _site/locales
+          cp index.html script.js style.css bootstrap.css bootstrap.bundle.min.js \
+             i18n.js hospital-names.js mockReviews.js \
+             google-calendar-integration.js google-calendar-config.js \
+             Hospitals_Greater_Cairo_Region.csv Favicon_Nabd.jpeg hospital.png _site/
+          cp -r locales/en locales/ar _site/locales/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

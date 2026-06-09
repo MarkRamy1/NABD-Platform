@@ -2,7 +2,7 @@
 
 > **نبض (Pulse)** - Empowering patients with transparent hospital information and community-driven insights across the Greater Cairo region.
 
-![NABD Logo](nabd-platform/Normal%20Files/Favicon_Nabd.jpeg)
+![NABD Logo](Favicon_Nabd.jpeg)
 
 [![Status](https://img.shields.io/badge/Status-Active-green)]() 
 [![Version](https://img.shields.io/badge/Version-1.0-blue)]() 
@@ -40,7 +40,7 @@
 
 ### Solution
 NABD bridges this gap by providing:
-- **Database of 402+ hospitals** with detailed information
+- **Database of 325 hospitals** with detailed information (Greater Cairo CSV)
 - **Community reviews and ratings** from verified patients
 - **Bilingual interface** (English & Arabic)
 - **Advanced search and filtering** capabilities
@@ -54,7 +54,7 @@ NABD bridges this gap by providing:
 
 | Feature | Description | Status |
 |---------|---|:---:|
-| **Hospital Discovery** | Search and browse 402+ hospitals with detailed profiles | ✅ |
+| **Hospital Discovery** | Search and browse 325 hospitals with detailed profiles | ✅ |
 | **Advanced Filtering** | Filter by location, specialty, bed capacity, and working hours | ✅ |
 | **Rating System** | 5-star community ratings with detailed patient reviews | ✅ |
 | **Bilingual Support** | Complete English & Arabic interface | ✅ |
@@ -66,11 +66,10 @@ NABD bridges this gap by providing:
 
 ### 📊 Data Insights
 
-- **Total Hospitals**: 402
-- **Regions Covered**: Cairo (248), Giza (87), El Qalyubia (67)
-- **Average Beds per Hospital**: 257
-- **24/7 Services**: 195 hospitals (48.5%)
-- **Review Database**: 50+ sample reviews (bilingual)
+- **Total Hospitals**: 325 (in deployed CSV; analytics target 402)
+- **Regions Covered**: Cairo, Giza, El Qalyubia
+- **Review Database**: Sample bilingual reviews (mock data for demo hospitals)
+- **Live demo**: [markramy1.github.io/NABD-Platform](https://markramy1.github.io/NABD-Platform/)
 
 ---
 
@@ -83,24 +82,18 @@ NABD bridges this gap by providing:
 ### Option 1: Local Development (Instant)
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/NABD-Hospital-Platform.git
-cd NABD-Hospital-Platform
+git clone https://github.com/MarkRamy1/NABD-Platform.git
+cd NABD-Platform
+cp google-calendar-config.example.js google-calendar-config.js
+# Edit google-calendar-config.js with your Google OAuth credentials (optional)
 
-# Open in browser
-open nabd-platform/Normal\ Files/index.html
-# or on Windows
-start nabd-platform\Normal Files\index.html
+python -m http.server 8000
+# Open http://localhost:8000
 ```
 
 ### Option 2: Live Demo (GitHub Pages)
 ```
-Visit: https://yourusername.github.io/NABD-Hospital-Platform
-```
-
-### Option 3: Netlify Deployment
-```
-https://nabd-hospital-platform.netlify.app
+https://markramy1.github.io/NABD-Platform/
 ```
 
 ---
@@ -108,46 +101,18 @@ https://nabd-hospital-platform.netlify.app
 ## 📁 Project Structure
 
 ```
-NABD-Hospital-Platform/
-│
-├── README.md                          # This file
-├── .gitignore                         # Git ignore rules
-├── LICENSE                            # Project license
-│
-└── nabd-platform/
-    │
-    ├── PROJECT_REPORT.md              # Detailed project analysis
-    │
-    ├── Normal Files/                  # ⭐ MAIN APPLICATION
-    │   ├── index.html                 # Main HTML entry point
-    │   ├── script.js                  # Core application logic
-    │   ├── style.css                  # Application styles
-    │   │
-    │   ├── mockReviews.js             # Sample hospital reviews (EN/AR)
-    │   ├── hospital-names.js          # Bilingual hospital name translations
-    │   ├── i18n.js                    # Internationalization module
-    │   │
-    │   ├── google-calendar-integration.js  # Google Calendar API integration
-    │   ├── GOOGLE_CALENDAR_SETUP.md        # Google Calendar setup guide
-    │   │
-    │   ├── bootstrap.css              # Bootstrap framework
-    │   ├── bootstrap.bundle.min.js    # Bootstrap JavaScript
-    │   ├── Favicon_Nabd.jpeg          # NABD logo and favicon
-    │   ├── hospital.png               # Hospital imagery
-    │   │
-    │   ├── CLEANUP_SUMMARY.md         # File optimization report
-    │   ├── IMPLEMENTATION_NOTES.txt   # Implementation details
-    │   └── OAuth.txt                  # OAuth credentials reference
-    │
-    ├── Nabd data/                     # Hospital dataset and analytics
-    │   ├── Hospitals_Greater_Cairo_Region.csv
-    │   ├── Hospital_Data_Summary_Report.txt
-    │   └── [Various visualizations in HTML]
-    │
-    ├── images/                        # Project images and mockups
-    │
-    └── nabd-project/                  # Project documentation
-        └── ACTION_PLAN.md             # Development action items
+NABD-Platform/
+├── index.html                         # ⭐ Main entry point
+├── script.js                          # Application logic
+├── style.css, bootstrap.css
+├── i18n.js, hospital-names.js, mockReviews.js
+├── google-calendar-integration.js
+├── google-calendar-config.example.js  # Copy → google-calendar-config.js (gitignored)
+├── Hospitals_Greater_Cairo_Region.csv
+├── locales/en/common.json, locales/ar/common.json
+├── .github/workflows/pages.yml        # GitHub Pages CI deploy
+├── nabd-platform/PROJECT_REPORT.md    # Strategy / vision document
+└── README.md, DEPLOYMENT.md, GOOGLE_CALENDAR_SETUP.md
 ```
 
 ---
@@ -232,52 +197,20 @@ Then visit: `http://localhost:8000/nabd-platform/Normal\ Files/`
 
 ### Deploy to GitHub Pages (Recommended)
 
-**Step 1: Create GitHub Repository**
-```bash
-# Initialize git
-git init
-git add .
-git commit -m "Initial NABD prototype commit"
-```
+1. Push to `main` on [MarkRamy1/NABD-Platform](https://github.com/MarkRamy1/NABD-Platform)
+2. Repo **Settings → Pages → Build and deployment → Source:** **GitHub Actions**
+3. (Optional) **Settings → Secrets → Actions:** add `GOOGLE_CLIENT_ID` and `GOOGLE_API_KEY` for Calendar sync on production
+4. Each push runs `.github/workflows/pages.yml` and deploys the repo root as a static site
 
-**Step 2: Create GitHub Repo**
-- Go to https://github.com/new
-- Create repo: `NABD-Hospital-Platform`
-- Make it public
+**Live URL:** https://markramy1.github.io/NABD-Platform/
 
-**Step 3: Push to GitHub**
-```bash
-git remote add origin https://github.com/yourusername/NABD-Hospital-Platform.git
-git branch -M main
-git push -u origin main
-```
-
-**Step 4: Enable GitHub Pages**
-- Go to repo Settings → Pages
-- Source: Deploy from branch
-- Branch: main
-- Folder: `/nabd-platform/Normal Files/`
-- Save
-
-**Step 5: Access Your Site**
-```
-https://yourusername.github.io/NABD-Hospital-Platform
-```
+See [DEPLOYMENT.md](DEPLOYMENT.md) and [GOOGLE_CALENDAR_SETUP.md](GOOGLE_CALENDAR_SETUP.md) for details.
 
 ### Deploy to Netlify
 
-**Step 1: Connect GitHub**
-- Go to https://netlify.com
-- Click "New site from Git"
-- Select your GitHub repo
-
-**Step 2: Configure Deployment**
-- Build command: (leave empty)
-- Publish directory: `nabd-platform/Normal Files`
-
-**Step 3: Deploy**
-- Click "Deploy"
-- Your site is live!
+- **Publish directory:** repository root (where `index.html` lives)
+- **Build command:** leave empty
+- Copy `google-calendar-config.example.js` → `google-calendar-config.js` and add credentials before deploy
 
 ---
 
@@ -395,11 +328,9 @@ Max Beds:         500+
 
 ### Google Calendar Integration
 
-**Configured OAuth 2.0 Credentials:**
-```
-Client ID: 560277826555-kccliqerreockqn0rgaq1f4h62u10j4b.apps.googleusercontent.com
-Scopes: Google Calendar API
-```
+**Configuration:** Copy `google-calendar-config.example.js` to `google-calendar-config.js` (gitignored) and add your OAuth Client ID and API key. See `GOOGLE_CALENDAR_SETUP.md`.
+
+**Scopes:** `https://www.googleapis.com/auth/calendar.events`
 
 **Features:**
 - Gmail authentication (Gmail-only accounts)

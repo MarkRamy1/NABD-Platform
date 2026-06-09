@@ -1,203 +1,244 @@
-// Google Calendar Integration Module
-// Handles OAuth 2.0 authentication and appointment booking
+// Google Calendar Integration — OAuth 2.0 access tokens + Calendar API
+// Credentials load from google-calendar-config.js (see google-calendar-config.example.js)
 
-// Replace these with your Google Cloud project credentials
-const GOOGLE_CLIENT_ID = '560277826555-kccliqerreockqn0rgaq1f4h62u10j4b.apps.googleusercontent.com';
-const GOOGLE_API_KEY = 'AIzaSyC14i6apvAuxjbkyV_cE5q8Yo3ydWo5nRo';
-const SCOPES = 'https://www.googleapis.com/auth/calendar';
+const GOOGLE_CLIENT_ID = (window.NABD_GOOGLE_CONFIG || {}).clientId || '';
+const GOOGLE_API_KEY = (window.NABD_GOOGLE_CONFIG || {}).apiKey || '';
+const SCOPES = 'https://www.googleapis.com/auth/calendar.events';
 
-let googleAuthToken = null;
-let googleUserProfile = null;
+let googleAccessToken = null;
+let googleAccessTokenExpiry = 0;
+let tokenClient = null;
+let gapiReady = false;
+let gsiReady = false;
 
-// Initialize Google API
-async function initGoogleAPI() {
-    return new Promise((resolve) => {
+function isGoogleCalendarConfigured() {
+    return Boolean(GOOGLE_CLIENT_ID);
+}
+
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) {
+            resolve();
+            return;
+        }
         const script = document.createElement('script');
-        script.src = 'https://accounts.google.com/gsi/client';
+        script.src = src;
         script.async = true;
         script.defer = true;
-        script.onload = () => {
-            window.google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: handleGoogleSignIn
-            });
-            resolve();
-        };
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load ${src}`));
         document.head.appendChild(script);
     });
 }
 
-// Load Google Calendar API
-async function loadGoogleCalendarAPI() {
-    return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = 'https://apis.google.com/js/api.js';
-        script.async = true;
-        script.onload = () => {
-            window.gapi.load('client', () => {
-                window.gapi.client.init({
-                    apiKey: GOOGLE_API_KEY,
-                    discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest'],
-                    clientId: GOOGLE_CLIENT_ID,
-                    scope: SCOPES
-                }).then(() => {
-                    resolve();
-                });
-            });
-        };
-        document.head.appendChild(script);
-    });
+function clearLegacyGoogleTokens() {
+    localStorage.removeItem('googleAuthToken');
 }
 
-// Handle Google Sign In
-function handleGoogleSignIn(response) {
-    googleAuthToken = response.credential;
-    // Decode JWT to get user info
-    const decoded = parseJwt(response.credential);
-    googleUserProfile = {
-        email: decoded.email,
-        name: decoded.name,
-        picture: decoded.picture
-    };
-    localStorage.setItem('googleAuthToken', response.credential);
-    localStorage.setItem('googleUserProfile', JSON.stringify(googleUserProfile));
-    console.log('Google Sign-In successful:', googleUserProfile);
-}
-
-// Parse JWT token
-function parseJwt(token) {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-        atob(base64).split('').map((c) => {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join('')
-    );
-    return JSON.parse(jsonPayload);
-}
-
-// Check if user is authenticated with Google
-function isGoogleAuthenticated() {
-    const token = localStorage.getItem('googleAuthToken');
-    return !!token && googleAuthToken !== null;
-}
-
-// Initialize Google Sign-In button
-async function initGoogleSignInButton() {
-    try {
-        await initGoogleAPI();
-        const googleSignInContainer = document.getElementById('google-signin-container');
-        if (googleSignInContainer && window.google) {
-            window.google.accounts.id.renderButton(
-                googleSignInContainer,
-                {
-                    theme: 'outline',
-                    size: 'large',
-                    text: 'signin_with'
-                }
-            );
-        }
-    } catch (error) {
-        console.error('Error initializing Google Sign-In:', error);
+function clearGoogleAccessToken() {
+    googleAccessToken = null;
+    googleAccessTokenExpiry = 0;
+    localStorage.removeItem('googleAccessToken');
+    localStorage.removeItem('googleAccessTokenExpiry');
+    if (window.gapi?.client) {
+        gapi.client.setToken(null);
     }
 }
 
-// Create Google Calendar Event
-async function createGoogleCalendarEvent(eventDetails) {
-    try {
-        // If not using OAuth, use direct API call with token
-        if (!window.gapi || !window.gapi.client.calendar) {
-            return await createCalendarEventViaAPI(eventDetails);
+function applyAccessToken(token, expiresInSeconds) {
+    googleAccessToken = token;
+    googleAccessTokenExpiry = Date.now() + expiresInSeconds * 1000;
+    localStorage.setItem('googleAccessToken', token);
+    localStorage.setItem('googleAccessTokenExpiry', String(googleAccessTokenExpiry));
+    if (window.gapi?.client) {
+        gapi.client.setToken({ access_token: token });
+    }
+}
+
+function restoreGoogleAccessToken() {
+    const token = localStorage.getItem('googleAccessToken');
+    const expiry = Number(localStorage.getItem('googleAccessTokenExpiry') || 0);
+    if (token && expiry > Date.now() + 60_000) {
+        googleAccessToken = token;
+        googleAccessTokenExpiry = expiry;
+        if (window.gapi?.client) {
+            gapi.client.setToken({ access_token: token });
         }
+        return true;
+    }
+    clearGoogleAccessToken();
+    return false;
+}
 
-        const event = {
-            summary: eventDetails.title,
-            description: eventDetails.description,
-            start: {
-                dateTime: new Date(eventDetails.startDateTime).toISOString(),
-                timeZone: 'Africa/Cairo'
-            },
-            end: {
-                dateTime: new Date(eventDetails.endDateTime).toISOString(),
-                timeZone: 'Africa/Cairo'
-            },
-            location: eventDetails.location,
-            attendees: [
-                { email: eventDetails.userEmail }
-            ]
+function isGoogleAuthenticated() {
+    if (googleAccessToken && googleAccessTokenExpiry > Date.now() + 60_000) {
+        return true;
+    }
+    return restoreGoogleAccessToken();
+}
+
+async function initGoogleIdentityServices() {
+    if (gsiReady || !isGoogleCalendarConfigured()) return;
+    await loadScript('https://accounts.google.com/gsi/client');
+    tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: GOOGLE_CLIENT_ID,
+        scope: SCOPES,
+        callback: () => {}
+    });
+    gsiReady = true;
+}
+
+async function loadGoogleCalendarAPI() {
+    if (gapiReady || !isGoogleCalendarConfigured()) return;
+    await loadScript('https://apis.google.com/js/api.js');
+    await new Promise((resolve, reject) => {
+        gapi.load('client', { callback: resolve, onerror: reject });
+    });
+    const initOptions = {
+        discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest']
+    };
+    if (GOOGLE_API_KEY) {
+        initOptions.apiKey = GOOGLE_API_KEY;
+    }
+    await gapi.client.init(initOptions);
+    gapiReady = true;
+    restoreGoogleAccessToken();
+}
+
+function requestGoogleCalendarAccess(prompt = '') {
+    return new Promise((resolve, reject) => {
+        if (!isGoogleCalendarConfigured()) {
+            reject(new Error('Google Calendar is not configured'));
+            return;
+        }
+        if (!tokenClient) {
+            reject(new Error('Google Identity Services not initialized'));
+            return;
+        }
+        if (isGoogleAuthenticated()) {
+            resolve(googleAccessToken);
+            return;
+        }
+        tokenClient.callback = (response) => {
+            if (response.error !== undefined) {
+                reject(new Error(response.error));
+                return;
+            }
+            applyAccessToken(response.access_token, response.expires_in);
+            resolve(googleAccessToken);
         };
+        tokenClient.requestAccessToken({ prompt });
+    });
+}
 
-        const request = window.gapi.client.calendar.events.insert({
+async function ensureGoogleCalendarAuth() {
+    if (!isGoogleCalendarConfigured()) {
+        throw new Error('Google Calendar is not configured');
+    }
+    if (isGoogleAuthenticated()) {
+        return googleAccessToken;
+    }
+    try {
+        return await requestGoogleCalendarAccess('');
+    } catch {
+        return await requestGoogleCalendarAccess('consent');
+    }
+}
+
+function buildCalendarEventResource(eventDetails) {
+    return {
+        summary: eventDetails.title,
+        description: eventDetails.description,
+        start: {
+            dateTime: new Date(eventDetails.startDateTime).toISOString(),
+            timeZone: 'Africa/Cairo'
+        },
+        end: {
+            dateTime: new Date(eventDetails.endDateTime).toISOString(),
+            timeZone: 'Africa/Cairo'
+        },
+        location: eventDetails.location,
+        attendees: eventDetails.userEmail ? [{ email: eventDetails.userEmail }] : []
+    };
+}
+
+async function createGoogleCalendarEvent(eventDetails) {
+    const accessToken = await ensureGoogleCalendarAuth();
+    const event = buildCalendarEventResource(eventDetails);
+
+    if (gapiReady && window.gapi?.client?.calendar) {
+        const response = await gapi.client.calendar.events.insert({
             calendarId: 'primary',
             resource: event
         });
-
-        return new Promise((resolve, reject) => {
-            request.then((response) => {
-                console.log('Event created:', response.result);
-                resolve(response.result);
-            }).catch((error) => {
-                console.error('Error creating event:', error);
-                reject(error);
-            });
-        });
-
-    } catch (error) {
-        console.error('Error in createGoogleCalendarEvent:', error);
-        throw error;
+        return response.result;
     }
-}
 
-// Alternative: Create calendar event via direct REST API call
-async function createCalendarEventViaAPI(eventDetails) {
-    try {
-        const token = localStorage.getItem('googleAuthToken');
-        if (!token) {
-            throw new Error('No Google authentication token found');
-        }
-
-        const event = {
-            summary: eventDetails.title,
-            description: eventDetails.description,
-            start: {
-                dateTime: new Date(eventDetails.startDateTime).toISOString(),
-                timeZone: 'Africa/Cairo'
-            },
-            end: {
-                dateTime: new Date(eventDetails.endDateTime).toISOString(),
-                timeZone: 'Africa/Cairo'
-            },
-            location: eventDetails.location
-        };
-
-        const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+    const response = await fetch(
+        'https://www.googleapis.com/calendar/v3/calendars/primary/events',
+        {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
+                Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(event)
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to create event: ${response.statusText}`);
         }
+    );
 
-        const result = await response.json();
-        console.log('Event created via REST API:', result);
-        return result;
-
-    } catch (error) {
-        console.error('Error in createCalendarEventViaAPI:', error);
-        throw error;
+    if (!response.ok) {
+        const errBody = await response.text();
+        throw new Error(`Calendar API error (${response.status}): ${errBody}`);
     }
+
+    return response.json();
+}
+
+async function initGoogleCalendarConnectButton() {
+    const container = document.getElementById('google-signin-container');
+    if (!container || !isGoogleCalendarConfigured()) return;
+
+    container.innerHTML = '';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-outline-primary';
+    btn.textContent = isGoogleAuthenticated()
+        ? 'Google Calendar connected'
+        : 'Connect Google Calendar';
+    btn.disabled = isGoogleAuthenticated();
+    btn.addEventListener('click', async () => {
+        try {
+            await requestGoogleCalendarAccess('consent');
+            btn.textContent = 'Google Calendar connected';
+            btn.disabled = true;
+        } catch (err) {
+            console.error('Google Calendar connect failed:', err);
+            alert('Could not connect Google Calendar. Please try again.');
+        }
+    });
+    container.appendChild(btn);
+}
+
+async function initGoogleCalendar() {
+    clearLegacyGoogleTokens();
+
+    if (!isGoogleCalendarConfigured()) {
+        console.warn(
+            'Google Calendar: copy google-calendar-config.example.js to google-calendar-config.js and add your credentials.'
+        );
+        return;
+    }
+
+    await initGoogleIdentityServices();
+    await loadGoogleCalendarAPI();
+    await initGoogleCalendarConnectButton();
 }
 
 // Store appointment locally
 function saveAppointmentLocally(appointmentData) {
     const userEmail = JSON.parse(localStorage.getItem('nabd_user') || '{}').email;
     const appointments = JSON.parse(localStorage.getItem(`appointments_${userEmail}`) || '[]');
-    
+
     const appointment = {
         id: Date.now(),
         ...appointmentData,
@@ -210,14 +251,12 @@ function saveAppointmentLocally(appointmentData) {
     return appointment;
 }
 
-// Get user appointments
 function getUserAppointments() {
     const userEmail = JSON.parse(localStorage.getItem('nabd_user') || '{}').email;
     if (!userEmail) return [];
     return JSON.parse(localStorage.getItem(`appointments_${userEmail}`) || '[]');
 }
 
-// Cancel appointment
 function cancelAppointment(appointmentId) {
     const userEmail = JSON.parse(localStorage.getItem('nabd_user') || '{}').email;
     if (!userEmail) return false;
@@ -228,14 +267,13 @@ function cancelAppointment(appointmentId) {
     return true;
 }
 
-// Update appointment
 function updateAppointment(appointmentId, updates) {
     const userEmail = JSON.parse(localStorage.getItem('nabd_user') || '{}').email;
     if (!userEmail) return false;
 
     let appointments = JSON.parse(localStorage.getItem(`appointments_${userEmail}`) || '[]');
     const index = appointments.findIndex(apt => apt.id === appointmentId);
-    
+
     if (index !== -1) {
         appointments[index] = { ...appointments[index], ...updates };
         localStorage.setItem(`appointments_${userEmail}`, JSON.stringify(appointments));
@@ -244,7 +282,6 @@ function updateAppointment(appointmentId, updates) {
     return null;
 }
 
-// Format time for display
 function formatAppointmentDateTime(dateString) {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', {
@@ -257,19 +294,8 @@ function formatAppointmentDateTime(dateString) {
     });
 }
 
-// Initialize Google Calendar on page load
 document.addEventListener('DOMContentLoaded', () => {
-    // Load stored token if available
-    const storedToken = localStorage.getItem('googleAuthToken');
-    const storedProfile = localStorage.getItem('googleUserProfile');
-    
-    if (storedToken) {
-        googleAuthToken = storedToken;
-    }
-    if (storedProfile) {
-        googleUserProfile = JSON.parse(storedProfile);
-    }
-
-    // Initialize Google Sign-In button
-    initGoogleSignInButton();
+    initGoogleCalendar().catch((err) => {
+        console.error('Google Calendar initialization failed:', err);
+    });
 });

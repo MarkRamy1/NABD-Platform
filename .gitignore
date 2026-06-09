@@ -14,6 +14,11 @@ build/
 .env.local
 .env.*.local
 
+# Google OAuth credentials (use google-calendar-config.example.js as template)
+google-calendar-config.js
+OAuth.txt
+**/OAuth.txt
+
 # IDE & Editor
 .vscode/
 .idea/
@@ -45,6 +50,8 @@ orig.txt
 plat.txt
 
 # Project-specific
+nabd-platform.rar
+_site/
 nabd original/
 nabd-platform/shadcn-ui/
 nabd-platform/images/
