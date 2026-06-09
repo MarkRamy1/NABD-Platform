@@ -107,7 +107,6 @@ const HOSPITAL_NAMES_AR = {
   "El Ma'moora Psychiatry Hospital": "مستشفى المعمورة للطب النفسي",
   "El Ma'amora": "مستشفى المعمورة",
   "Victoria Hospital": "مستشفى فيكتوريا",
-  "Saudi German Hospital (SGH)": "المستشفى السعودي الألماني (SGH)",
   "El Mabarah": "مستشفى المبرة",
   "El Madina Hospital": "مستشفى المدينة",
   "El Maleka Nazly Paediatric Hospital": "مستشفى الملكة نازلي لطب الأطفال",
