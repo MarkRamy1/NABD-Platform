@@ -70,7 +70,7 @@ function applyLanguage() {
     }
 }
 
-// Initialize i18n
-function initI18n() {
-    loadTranslations(currentLanguage);
+// Initialize i18n (await before loading hospital data so names use the right language)
+async function initI18n() {
+    await loadTranslations(currentLanguage);
 }

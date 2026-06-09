@@ -64,13 +64,11 @@ window.addEventListener('hashchange', () => {
     showPage(page);
 });
 
-// Initial page
-document.addEventListener('DOMContentLoaded', () => {
-    initI18n();
-    loadDataset();
-    // ensure no modal is visible when page opens
+// Initial page — load i18n first so hospital names render in the saved language
+document.addEventListener('DOMContentLoaded', async () => {
+    await initI18n();
+    await loadDataset();
     document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-    // clear any hash and show home section by default
     if (location.hash) location.hash = '';
     showPage('home');
 });
